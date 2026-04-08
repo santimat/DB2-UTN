@@ -2,7 +2,7 @@
 
 ## Diagrama entidad relacion
 
-![Diagrama ER](./src/diagram-er.webp)
+<img src="./src/diagram-er.webp" alt="Diagrama ER" align="center"/>
 
 ### Decisiones:
 
