@@ -2,7 +2,7 @@
 
 ## Diagrama entidad relacion
 
-<img src="./src/diagram-er.webp" alt="Diagrama ER" align="center"/>
+<img src="./src/stock-manager.webp" alt="Diagrama ER" align="center"/>
 
 ### Decisiones:
 
