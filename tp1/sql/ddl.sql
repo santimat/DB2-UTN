@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS clients(
 	-- the performance of using TEXT or VARCHAR() in PostgreSQL is the same 
 	name TEXT NOT NULL,
 	lastname TEXT NOT NULL,
-	address TEXT NOT NULL,
+	address TEXT,
 	email TEXT NOT NULL
 );
 
