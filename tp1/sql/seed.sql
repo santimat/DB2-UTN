@@ -67,9 +67,6 @@ INSERT INTO products (name, description, price, category_id, stock) VALUES
 ('Aceite de oliva extra virgen 500ml','Primera presión en frío, acidez máxima 0.2%, origen Mendoza',                     3499.00,   (SELECT id FROM categories WHERE name = 'Alimentos y Bebidas'), 200),
 ('Yerba mate Taragüi sin palo 1kg', 'Elaborada sin palo, curada 12 meses, estilo suave con buena espuma',                2199.00,   (SELECT id FROM categories WHERE name = 'Alimentos y Bebidas'), 300);
 
--- =============================================
--- 3. CLIENTES
--- =============================================
 INSERT INTO clients (name, lastname, address, email) VALUES
 ('Juan', 'Gomez', 'Av. Santa Fe 1234, CABA', 'juan.gomez@email.com'),
 ('Maria', 'Rodriguez', 'Calle 50 456, La Plata', 'm.rodriguez@email.com'),
@@ -172,24 +169,41 @@ INSERT INTO clients (name, lastname, address, email) VALUES
 ('Emiliano', 'Bracamonte', 'Uzzi 12, Ushuaia', 'emi.braca@email.com'),
 ('Yolanda', 'Sánchez', 'Chacabuco 99, San Miguel', 'yolanda.sanchez@email.com');
 
-WITH inserted_orders AS (
-    INSERT INTO orders (client_id, purchase_date)
-    SELECT 
-        (SELECT id FROM clients ORDER BY RANDOM() LIMIT 1),
-        NOW() - (RANDOM() * INTERVAL '30 days')
-    FROM generate_series(1, 150)
-    RETURNING id
+-- =============================================
+-- 4. ÓRDENES Y DETALLES (200 órdenes, cada una con al menos 2 productos)
+-- =============================================
+
+WITH client_list AS (
+  SELECT id, row_number() OVER () AS rn FROM clients
+),
+random_orders AS (
+  SELECT
+    uuid_generate_v4() AS order_id,
+    ((row_number() OVER ()) - 1) % (SELECT count(*) FROM client_list) + 1 AS client_rn,
+    NOW() - (interval '1 day' * floor(random() * 365)) AS purchase_date
+  FROM generate_series(1, 200)
+),
+orders_with_client AS (
+  SELECT
+    o.order_id,
+    c.id AS client_id,
+    o.purchase_date
+  FROM random_orders o
+  JOIN client_list c ON c.rn = o.client_rn
+),
+order_insert AS (
+  INSERT INTO orders (id, client_id, purchase_date)
+  SELECT order_id, client_id, purchase_date FROM orders_with_client
+  RETURNING id
 )
+-- Insertar 2 productos distintos por cada orden
 INSERT INTO orderDetail (order_id, product_id, purchase_price, quantity)
-SELECT 
-    o.id,
-    p.id,
-    p.price,
-    (RANDOM() * 5 + 1)::INT
-FROM inserted_orders o
+SELECT
+  o.id AS order_id,
+  p.id AS product_id,
+  p.price AS purchase_price,
+  (floor(random() * 3) + 1)::int AS quantity -- cantidad entre 1 y 3
+FROM order_insert o
 JOIN LATERAL (
-    SELECT * 
-    FROM products 
-    ORDER BY RANDOM() 
-    LIMIT (RANDOM() * 2 + 1)::INT
-) p ON TRUE;
+  SELECT id, price FROM products ORDER BY random() LIMIT 2
+  ) p ON TRUE;

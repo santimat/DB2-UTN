@@ -1,9 +1,5 @@
 # Sistema de gestion de pedidos + stock + clientes
 
-## Diagrama entidad relacion
-
-<img src="stock-manager.webp" alt="Diagrama ER" align="center"/>
-
 ### Decisiones:
 
 - Se separaron los pedidos en pedidos y items de pedido, para poder manejar pedidos con multiples productos.
@@ -11,9 +7,3 @@
 - Stock se separó de la entidad producto para poder manejar el stock de cada producto de manera independiente. Además permite escalabilidad a multiples depositos o sucursales.
 - Se agregó una entidad cliente para poder manejar la información de los clientes y sus pedidos.
 - Se agregó atributo categoría a la entidad producto para mejorar el filtrado y organización de los productos.
-
-## DDL
-
-```sql
-
-```
